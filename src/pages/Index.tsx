@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Icon from "@/components/ui/icon";
 
 const NAV = [
@@ -114,6 +114,37 @@ function TypingText({ text, speed = 55 }: { text: string; speed?: number }) {
 export default function Index() {
   const [active, setActive] = useState("hero");
   const [menu, setMenu] = useState(false);
+  const [form, setForm] = useState({ name: "", contact: "", message: "" });
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [formError, setFormError] = useState("");
+
+  const sendForm = useCallback(async () => {
+    if (!form.name.trim() || !form.contact.trim() || !form.message.trim()) {
+      setFormError("Заполните все поля");
+      return;
+    }
+    setFormError("");
+    setSending(true);
+    try {
+      const res = await fetch("https://functions.poehali.dev/5cf3302a-1a01-4b4a-a212-0706a25beb0c", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        setSent(true);
+        setForm({ name: "", contact: "", message: "" });
+      } else {
+        setFormError(data.error || "Ошибка отправки. Попробуйте позже.");
+      }
+    } catch {
+      setFormError("Нет соединения. Напишите напрямую: zuravkovplaton@gmail.com");
+    } finally {
+      setSending(false);
+    }
+  }, [form]);
 
   const go = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -510,28 +541,70 @@ export default function Index() {
           {/* Form */}
           <div className="hack-card p-7">
             <p className="sys-label mb-5">// ОТПРАВИТЬ_СООБЩЕНИЕ</p>
-            <div className="flex flex-col gap-4 mb-5">
-              <div>
-                <label className="sys-label block mb-2">ИМЯ</label>
-                <input className="hack-input w-full px-4 py-3 text-sm" placeholder="Иван Иванов" />
+
+            {sent ? (
+              <div className="text-center py-8">
+                <div className="font-orb font-black text-2xl neon-g mb-3">[ ОТПРАВЛЕНО ✓ ]</div>
+                <p className="font-ibm text-sm" style={{ color: "rgba(0,255,65,0.55)" }}>
+                  Заявка ушла на zuravkovplaton@gmail.com<br />Ответим в течение дня.
+                </p>
+                <button className="btn-hack-c px-6 py-2 mt-6 rounded-none font-ibm text-xs"
+                  onClick={() => setSent(false)}>
+                  [ НОВОЕ СООБЩЕНИЕ ]
+                </button>
               </div>
-              <div>
-                <label className="sys-label block mb-2">ТЕЛЕФОН / EMAIL</label>
-                <input className="hack-input w-full px-4 py-3 text-sm" placeholder="+7 911 254 00 94" />
-              </div>
-              <div>
-                <label className="sys-label block mb-2">СООБЩЕНИЕ</label>
-                <textarea className="hack-input w-full px-4 py-3 text-sm resize-none" rows={4}
-                  placeholder="Хочу заказать игру / записаться на Python / другой вопрос..." />
-              </div>
-            </div>
-            <button className="btn-hack w-full py-4 rounded-none font-orb"
-              onClick={() => alert("Форма будет настроена — свяжитесь напрямую: zuravkovplaton@gmail.com")}>
-              [ ОТПРАВИТЬ ЗАПРОС → ]
-            </button>
-            <p className="font-ibm text-xs text-center mt-4" style={{ color: "rgba(0,255,65,0.25)" }}>
-              или напишите напрямую: zuravkovplaton@gmail.com
-            </p>
+            ) : (
+              <>
+                <div className="flex flex-col gap-4 mb-5">
+                  <div>
+                    <label className="sys-label block mb-2">ИМЯ</label>
+                    <input
+                      className="hack-input w-full px-4 py-3 text-sm"
+                      placeholder="Иван Иванов"
+                      value={form.name}
+                      onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <label className="sys-label block mb-2">ТЕЛЕФОН / EMAIL</label>
+                    <input
+                      className="hack-input w-full px-4 py-3 text-sm"
+                      placeholder="+7 911 254 00 94"
+                      value={form.contact}
+                      onChange={e => setForm(f => ({ ...f, contact: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <label className="sys-label block mb-2">СООБЩЕНИЕ</label>
+                    <textarea
+                      className="hack-input w-full px-4 py-3 text-sm resize-none"
+                      rows={4}
+                      placeholder="Хочу заказать игру / записаться на Python / другой вопрос..."
+                      value={form.message}
+                      onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
+                    />
+                  </div>
+                </div>
+
+                {formError && (
+                  <p className="font-ibm text-xs mb-4" style={{ color: "#ff4466" }}>
+                    ▸ {formError}
+                  </p>
+                )}
+
+                <button
+                  className="btn-hack w-full py-4 rounded-none font-orb"
+                  onClick={sendForm}
+                  disabled={sending}
+                  style={{ opacity: sending ? 0.6 : 1 }}
+                >
+                  {sending ? "[ ОТПРАВКА... ]" : "[ ОТПРАВИТЬ ЗАПРОС → ]"}
+                </button>
+                <p className="font-ibm text-xs text-center mt-4" style={{ color: "rgba(0,255,65,0.22)" }}>
+                  или напрямую: zuravkovplaton@gmail.com
+                </p>
+              </>
+            )}
           </div>
         </div>
       </section>
