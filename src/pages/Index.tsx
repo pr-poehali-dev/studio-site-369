@@ -1,226 +1,273 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Icon from "@/components/ui/icon";
 
 const NAV = [
-  { label: "Главная", id: "hero" },
-  { label: "Услуги", id: "services" },
+  { label: "Система", id: "hero" },
+  { label: "Разработка", id: "services" },
   { label: "Проекты", id: "projects" },
   { label: "Обучение", id: "edu" },
-  { label: "Контакты", id: "contacts" },
+  { label: "Связь", id: "contacts" },
 ];
 
 const DEV_GAMES = [
   {
-    emoji: "🐍",
+    tag: "SYS::PYTHON",
     title: "Игры на Python",
-    desc: "Создаём полноценные 2D-игры: платформеры, аркады, головоломки. Pygame, PyGame Zero, Arcade — выбираем под задачу.",
+    desc: "Полноценные 2D-игры: платформеры, аркады, головоломки. Pygame, Arcade — выбираем стек под задачу.",
     tags: ["Python", "Pygame", "2D"],
-    color: "var(--yellow)",
+    color: "var(--g)",
   },
   {
-    emoji: "🐱",
+    tag: "SYS::SCRATCH",
     title: "Игры на Scratch",
-    desc: "Визуальные игры и интерактивные истории в Scratch. Отлично для детских проектов, школьных олимпиад и подарков.",
-    tags: ["Scratch", "Визуальный код", "Дети"],
-    color: "var(--cyan)",
+    desc: "Визуальные игры и интерактивные истории. Школьные олимпиады, подарки, первые проекты.",
+    tags: ["Scratch", "Визуал", "Дети"],
+    color: "var(--c)",
   },
   {
-    emoji: "🎮",
-    title: "Прототипы и MVP",
-    desc: "Быстрый прототип за 1–2 недели. Покажи идею, проверь механику — без огромного бюджета.",
+    tag: "SYS::MVP",
+    title: "Прототипы",
+    desc: "Быстрый прототип за 1–2 недели. Покажи механику инвесторам или протестируй идею.",
     tags: ["MVP", "Быстро", "Python"],
-    color: "var(--purple)",
+    color: "var(--p)",
   },
 ];
 
 const EDU_COURSES = [
   {
-    emoji: "🐍",
+    tag: "MODULE_01",
     title: "Python с нуля",
     level: "Любой уровень",
-    duration: "8–12 недель",
-    desc: "Переменные, циклы, функции, ООП — через игровые задачи и реальные мини-проекты. Скучно не будет.",
-    color: "var(--yellow)",
-    highlights: ["Живые занятия", "Домашки с проверкой", "Финальный проект-игра"],
+    duration: "8–12 нед",
+    desc: "Переменные, циклы, функции, ООП — всё через игровые задачи. Финальный проект — твоя первая игра.",
+    color: "var(--g)",
+    list: ["Живые занятия онлайн", "Домашки с проверкой", "Финальная игра-проект"],
   },
   {
-    emoji: "🐱",
+    tag: "MODULE_02",
     title: "Scratch для детей",
     level: "7–14 лет",
-    duration: "6–8 недель",
-    desc: "Первые шаги в программировании через яркие визуальные блоки. Ребёнок сам создаёт своих героев и игровые миры.",
-    color: "var(--cyan)",
-    highlights: ["Без предварительных знаний", "Групповые и индивидуальные", "Сертификат выпускника"],
+    duration: "6–8 нед",
+    desc: "Визуальные блоки вместо синтаксиса. Ребёнок сам создаёт героев, уровни и сюжет.",
+    color: "var(--c)",
+    list: ["Без предварительных знаний", "Группа или индивидуально", "Сертификат выпускника"],
   },
 ];
 
 const WORKS = [
-  { emoji: "🏃", title: "Runner Dino", tech: "Python + Pygame", desc: "Бесконечный раннер с препятствиями, счётчиком рекордов и анимированным персонажем", color: "var(--yellow)" },
-  { emoji: "🧩", title: "Maze Quest", tech: "Python + Pygame", desc: "Лабиринт-головоломка с процедурной генерацией уровней и системой подсказок", color: "var(--cyan)" },
-  { emoji: "🌟", title: "Space Catcher", tech: "Scratch", desc: "Аркада для детей: ловим звёзды и уворачиваемся от метеоритов", color: "var(--purple)" },
-  { emoji: "🐸", title: "Frog Jump", tech: "Scratch", desc: "Платформер с уровнями, врагами и сохранением прогресса", color: "var(--pink)" },
+  { title: "Runner Dino",  tech: "Python · Pygame", desc: "Бесконечный раннер с препятствиями и таблицей рекордов", color: "var(--g)"  },
+  { title: "Maze Quest",   tech: "Python · Pygame", desc: "Лабиринт с процедурной генерацией уровней", color: "var(--c)"  },
+  { title: "Space Catcher",tech: "Scratch",         desc: "Аркада: ловим звёзды, уворачиваемся от метеоритов",   color: "var(--p)"  },
+  { title: "Frog Jump",    tech: "Scratch",         desc: "Платформер с уровнями, врагами и сохранением прогресса", color: "#ff4466" },
 ];
 
 const STATS = [
-  { val: "2+", label: "года студии", emoji: "📅" },
-  { val: "30+", label: "игр создано", emoji: "🎮" },
-  { val: "50+", label: "учеников", emoji: "🎓" },
-  { val: "2", label: "языка", emoji: "💻" },
+  { val: "2+",  label: "года опыта",      sym: "[YRS]" },
+  { val: "30+", label: "игр создано",     sym: "[GMS]" },
+  { val: "50+", label: "учеников",        sym: "[USR]" },
+  { val: "2",   label: "языка программ.", sym: "[LNG]" },
 ];
+
+function MatrixCanvas() {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const c = ref.current; if (!c) return;
+    const ctx = c.getContext("2d"); if (!ctx) return;
+    c.width = window.innerWidth; c.height = window.innerHeight;
+    const chars = "アイウエオカキクケコ01アBCDEF{}[]<>/\\|#@$%^&*!~;:PYTHON_SCRATCH_GAME_CODE_HACK";
+    const fs = 13;
+    const cols = Math.floor(c.width / fs);
+    const drops = Array(cols).fill(1);
+    const draw = () => {
+      ctx.fillStyle = "rgba(5,8,5,0.055)";
+      ctx.fillRect(0, 0, c.width, c.height);
+      ctx.font = `${fs}px 'Share Tech Mono', monospace`;
+      for (let i = 0; i < drops.length; i++) {
+        const ch = chars[Math.floor(Math.random() * chars.length)];
+        const bright = drops[i] * fs < 40;
+        ctx.fillStyle = bright ? "rgba(0,255,65,1)" : `rgba(0,255,65,${(Math.random() * 0.4 + 0.15).toFixed(2)})`;
+        ctx.fillText(ch, i * fs, drops[i] * fs);
+        if (drops[i] * fs > c.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    };
+    const id = setInterval(draw, 48);
+    const resize = () => { c.width = window.innerWidth; c.height = window.innerHeight; };
+    window.addEventListener("resize", resize);
+    return () => { clearInterval(id); window.removeEventListener("resize", resize); };
+  }, []);
+  return <canvas ref={ref} id="matrix-bg" />;
+}
+
+function TypingText({ text, speed = 55 }: { text: string; speed?: number }) {
+  const [out, setOut] = useState("");
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    if (i < text.length) {
+      const t = setTimeout(() => { setOut(p => p + text[i]); setI(p => p + 1); }, speed);
+      return () => clearTimeout(t);
+    }
+  }, [i, text, speed]);
+  return <span>{out}{i < text.length && <span className="blink" style={{ color: "var(--g)" }}>█</span>}</span>;
+}
 
 export default function Index() {
   const [active, setActive] = useState("hero");
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menu, setMenu] = useState(false);
 
-  const goto = (id: string) => {
+  const go = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-    setMenuOpen(false);
+    setMenu(false);
   };
 
   useEffect(() => {
-    const handler = () => {
+    const h = () => {
       for (const n of [...NAV].reverse()) {
         const el = document.getElementById(n.id);
-        if (el && window.scrollY >= el.offsetTop - 140) {
-          setActive(n.id);
-          break;
-        }
+        if (el && window.scrollY >= el.offsetTop - 130) { setActive(n.id); break; }
       }
     };
-    window.addEventListener("scroll", handler);
-    return () => window.removeEventListener("scroll", handler);
+    window.addEventListener("scroll", h);
+    return () => window.removeEventListener("scroll", h);
   }, []);
 
   return (
-    <div className="min-h-screen pixel-grid" style={{ background: "var(--bg)" }}>
+    <div className="min-h-screen hack-grid" style={{ background: "var(--bg)" }}>
+      <MatrixCanvas />
+      <div className="scanlines" />
 
-      {/* NAV */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4"
-        style={{ background: "rgba(14,17,23,0.88)", backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-        <button onClick={() => goto("hero")} className="flex items-center gap-2">
-          <span className="text-lg" style={{ lineHeight: 1 }}>🎮</span>
-          <span className="font-bold text-base" style={{ fontFamily: "'Nunito', sans-serif", color: "#E8EAF0" }}>
-            Game<span style={{ color: "var(--yellow)" }}>Code</span>
-          </span>
+      {/* ── NAV ── */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 py-3.5"
+        style={{ background: "rgba(5,8,5,0.9)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(0,255,65,0.1)" }}>
+        <button onClick={() => go("hero")} className="font-orb font-black text-base tracking-widest"
+          style={{ color: "var(--g)", textShadow: "0 0 10px rgba(0,255,65,0.6)" }}>
+          GAME<span style={{ color: "var(--c)" }}>CODE</span><span className="blink" style={{ color: "var(--g)" }}>_</span>
         </button>
-        <div className="hidden md:flex gap-7">
+        <div className="hidden md:flex gap-8">
           {NAV.map(n => (
-            <button key={n.id} className={`nav-item ${active === n.id ? "active" : ""}`} onClick={() => goto(n.id)}>
+            <button key={n.id} className={`nav-link ${active === n.id ? "active" : ""}`} onClick={() => go(n.id)}>
               {n.label}
             </button>
           ))}
         </div>
-        <button
-          onClick={() => goto("contacts")}
-          className="hidden md:block btn-primary px-5 py-2 text-sm"
-        >
-          Написать нам
+        <button className="hidden md:block btn-hack px-5 py-2 rounded-none" onClick={() => go("contacts")}>
+          Связаться
         </button>
-        <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)} style={{ color: "#E8EAF0" }}>
-          <Icon name={menuOpen ? "X" : "Menu"} size={22} />
+        <button className="md:hidden" onClick={() => setMenu(!menu)} style={{ color: "var(--g)" }}>
+          <Icon name={menu ? "X" : "Menu"} size={22} />
         </button>
       </nav>
 
-      {/* Mobile menu */}
-      {menuOpen && (
-        <div className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-7 md:hidden"
-          style={{ background: "rgba(14,17,23,0.97)", backdropFilter: "blur(20px)" }}>
+      {menu && (
+        <div className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-8 md:hidden"
+          style={{ background: "rgba(5,8,5,0.97)", backdropFilter: "blur(20px)" }}>
           {NAV.map(n => (
-            <button key={n.id} className="nav-item text-lg" onClick={() => goto(n.id)}>{n.label}</button>
+            <button key={n.id} className="nav-link text-base" onClick={() => go(n.id)}>{n.label}</button>
           ))}
-          <button className="btn-primary px-8 py-3 mt-4" onClick={() => goto("contacts")}>Написать нам</button>
+          <button className="btn-hack px-10 py-3 mt-4 rounded-none" onClick={() => go("contacts")}>СВЯЗАТЬСЯ</button>
         </div>
       )}
 
-      {/* HERO */}
+      {/* ── HERO ── */}
       <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-20 overflow-hidden">
-        {/* Floating emojis */}
-        <div className="absolute top-32 left-[8%] text-5xl float-1 select-none opacity-30">🐍</div>
-        <div className="absolute top-40 right-[10%] text-4xl float-2 select-none opacity-30">🐱</div>
-        <div className="absolute bottom-32 left-[15%] text-4xl float-3 select-none opacity-25">🎮</div>
-        <div className="absolute bottom-40 right-[12%] text-3xl float-1 select-none opacity-25">⭐</div>
-        <div className="absolute top-[55%] left-[4%] text-3xl float-2 select-none opacity-20">🏆</div>
-        <div className="absolute top-[45%] right-[5%] text-3xl float-3 select-none opacity-20">🧩</div>
+        {/* glow blobs */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[300px] rounded-full opacity-[0.06]"
+          style={{ background: "radial-gradient(ellipse, var(--g) 0%, transparent 70%)", filter: "blur(70px)", pointerEvents: "none" }} />
+        <div className="absolute bottom-1/4 left-1/4 w-64 h-64 rounded-full opacity-[0.04]"
+          style={{ background: "radial-gradient(circle, var(--c) 0%, transparent 70%)", filter: "blur(60px)", pointerEvents: "none" }} />
 
-        {/* Glow blob */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full opacity-10"
-          style={{ background: "radial-gradient(circle, var(--yellow) 0%, transparent 70%)", filter: "blur(60px)", pointerEvents: "none" }} />
+        {/* floating symbols */}
+        <div className="absolute top-36 left-[7%] font-ibm text-2xl flt1 select-none opacity-15" style={{ color: "var(--g)" }}>{"</>"}</div>
+        <div className="absolute top-48 right-[8%] font-ibm text-xl flt2 select-none opacity-15" style={{ color: "var(--c)" }}>{"{ }"}</div>
+        <div className="absolute bottom-36 left-[12%] font-ibm text-xl flt2 select-none opacity-10" style={{ color: "var(--g)" }}>{">>_"}</div>
+        <div className="absolute bottom-44 right-[10%] font-ibm text-xl flt1 select-none opacity-10" style={{ color: "var(--p)" }}>{"#!"}</div>
 
         <div className="relative z-10 max-w-3xl">
-          <div className="fade-up fade-up-1 flex items-center justify-center gap-3 mb-6">
-            <span className="section-label">// студия с 2024 года</span>
+          <div className="fu fu-1 sys-label mb-6">
+            ▸ GAMECODE_STUDIO :: BOOT_2024 :: STATUS_ONLINE
           </div>
 
-          <div className="fade-up fade-up-2">
-            <h1 className="font-bold mb-2" style={{ fontFamily: "'Nunito', sans-serif", fontSize: "clamp(2.4rem, 7vw, 5rem)", lineHeight: 1.1, color: "#E8EAF0" }}>
-              Делаем <span style={{ color: "var(--yellow)" }}>игры</span><br />
-              и учим <span style={{ color: "var(--cyan)" }}>программировать</span>
+          <div className="fu fu-2 mb-2">
+            <h1 className="glitch font-orb font-black"
+              data-text="GAMECODE"
+              style={{
+                fontSize: "clamp(2.8rem, 10vw, 7rem)",
+                lineHeight: 1,
+                color: "var(--g)",
+                textShadow: "0 0 20px var(--g), 0 0 50px rgba(0,255,65,0.35), 0 0 100px rgba(0,255,65,0.15)",
+              }}>
+              GAMECODE
             </h1>
           </div>
 
-          <div className="fade-up fade-up-3 mt-5 mb-8">
-            <p className="text-lg font-light max-w-xl mx-auto" style={{ color: "rgba(232,234,240,0.65)", lineHeight: 1.75 }}>
-              Разрабатываем игры на <span style={{ color: "var(--yellow)" }}>Python</span> и{" "}
-              <span style={{ color: "var(--cyan)" }}>Scratch</span>. Обучаем детей и взрослых
-              с нуля до первой игры.
+          <div className="fu fu-3 mt-4 mb-2">
+            <p className="font-ibm text-lg" style={{ color: "var(--c)", textShadow: "0 0 10px rgba(0,229,255,0.4)" }}>
+              <TypingText text="// Разработка игр · Python · Scratch · Обучение" />
             </p>
           </div>
 
-          <div className="fade-up fade-up-4 flex flex-wrap gap-4 justify-center">
-            <button className="btn-primary px-8 py-3.5 text-base" onClick={() => goto("services")}>
-              🎮 Заказать игру
+          <div className="fu fu-4 mt-4 mb-10">
+            <p className="max-w-lg mx-auto text-sm leading-relaxed font-ibm"
+              style={{ color: "rgba(0,255,65,0.55)", lineHeight: 1.85 }}>
+              Создаём игры и обучаем программированию с 2024 года.
+              Взламываем скуку — пишем код, который живёт и дышит.
+            </p>
+          </div>
+
+          <div className="fu fu-5 flex flex-wrap gap-4 justify-center mb-14">
+            <button className="btn-hack px-8 py-3.5 rounded-none" onClick={() => go("services")}>
+              [ ЗАКАЗАТЬ ИГРУ ]
             </button>
-            <button className="btn-outline px-8 py-3.5 text-base" onClick={() => goto("edu")}>
-              🎓 Записаться учиться
+            <button className="btn-hack-c px-8 py-3.5 rounded-none" onClick={() => go("edu")}>
+              [ ЗАПИСАТЬСЯ ]
             </button>
           </div>
 
-          {/* Stats */}
-          <div className="fade-up fade-up-5 mt-14 grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* STATS */}
+          <div className="fu fu-5 grid grid-cols-2 md:grid-cols-4 gap-4">
             {STATS.map(s => (
-              <div key={s.label} className="game-card p-4 text-center">
-                <div className="text-2xl mb-1">{s.emoji}</div>
-                <div className="text-2xl font-extrabold mb-0.5" style={{ color: "var(--yellow)", fontFamily: "'Nunito', sans-serif" }}>
-                  {s.val}
-                </div>
-                <div className="text-xs font-semibold" style={{ color: "rgba(232,234,240,0.45)" }}>{s.label}</div>
+              <div key={s.label} className="hack-card p-4 text-center">
+                <div className="sys-label mb-1">{s.sym}</div>
+                <div className="font-orb font-black text-2xl neon-g mb-1">{s.val}</div>
+                <div className="text-xs font-ibm" style={{ color: "rgba(0,255,65,0.38)" }}>{s.label}</div>
               </div>
             ))}
           </div>
         </div>
 
-        <button className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce" onClick={() => goto("services")} style={{ color: "rgba(232,234,240,0.3)" }}>
-          <Icon name="ChevronDown" size={26} />
+        <button className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce"
+          onClick={() => go("services")} style={{ color: "rgba(0,255,65,0.3)" }}>
+          <Icon name="ChevronDown" size={24} />
         </button>
       </section>
 
-      {/* SERVICES — Разработка */}
-      <section id="services" className="py-24 px-6">
+      {/* ── SERVICES ── */}
+      <section id="services" className="py-24 px-6 relative z-10">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="section-label mb-3">// 01 — Разработка</p>
-            <h2 className="text-3xl md:text-4xl font-extrabold" style={{ color: "#E8EAF0", fontFamily: "'Nunito', sans-serif" }}>
-              Создаём <span style={{ color: "var(--yellow)" }}>игры</span>
+          <div className="mb-12">
+            <p className="sys-label mb-3">// MODULE_01 :: РАЗРАБОТКА_ИГР</p>
+            <h2 className="font-orb font-black text-3xl md:text-4xl neon-g mb-3">
+              Создаём игры
             </h2>
-            <p className="mt-3 text-base max-w-lg mx-auto" style={{ color: "rgba(232,234,240,0.5)" }}>
-              Python и Scratch — наша специализация. От простой аркады до многоуровневой головоломки.
+            <p className="font-ibm text-sm" style={{ color: "rgba(0,255,65,0.45)" }}>
+              Python и Scratch — наш стек. От аркады до многоуровневой головоломки.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {DEV_GAMES.map((g) => (
-              <div key={g.title} className="game-card p-6">
-                <div className="text-4xl mb-4">{g.emoji}</div>
-                <h3 className="text-lg font-extrabold mb-2" style={{ color: g.color, fontFamily: "'Nunito', sans-serif" }}>
+          <div className="grid md:grid-cols-3 gap-5">
+            {DEV_GAMES.map(g => (
+              <div key={g.title} className="hack-card p-6">
+                <div className="sys-label mb-3">{g.tag}</div>
+                <h3 className="font-orb font-bold text-base mb-3" style={{ color: g.color, textShadow: `0 0 10px ${g.color}55` }}>
                   {g.title}
                 </h3>
-                <p className="text-sm leading-relaxed mb-5" style={{ color: "rgba(232,234,240,0.6)" }}>
+                <p className="text-sm font-ibm leading-relaxed mb-5" style={{ color: "rgba(0,255,65,0.5)" }}>
                   {g.desc}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {g.tags.map(t => (
-                    <span key={t} className="text-xs px-2.5 py-1 rounded-md font-bold font-mono-code"
-                      style={{ background: `${g.color}18`, color: g.color, border: `1px solid ${g.color}30` }}>
+                    <span key={t} className="text-xs font-ibm px-2 py-0.5"
+                      style={{ background: `${g.color}12`, color: g.color, border: `1px solid ${g.color}30` }}>
                       {t}
                     </span>
                   ))}
@@ -229,97 +276,90 @@ export default function Index() {
             ))}
           </div>
 
-          <div className="mt-10 text-center">
-            <button className="btn-primary px-10 py-3.5 text-base" onClick={() => goto("contacts")}>
-              Обсудить проект →
+          <div className="mt-10">
+            <button className="btn-hack px-10 py-3.5 rounded-none" onClick={() => go("contacts")}>
+              [ ОБСУДИТЬ ПРОЕКТ → ]
             </button>
           </div>
         </div>
       </section>
 
-      {/* PROJECTS */}
-      <section id="projects" className="py-24 px-6" style={{ background: "rgba(255,255,255,0.015)" }}>
+      <hr className="hack-divider mx-6" />
+
+      {/* ── PROJECTS ── */}
+      <section id="projects" className="py-24 px-6 relative z-10">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="section-label mb-3">// 02 — Портфолио</p>
-            <h2 className="text-3xl md:text-4xl font-extrabold" style={{ color: "#E8EAF0", fontFamily: "'Nunito', sans-serif" }}>
-              Наши <span style={{ color: "var(--cyan)" }}>работы</span>
-            </h2>
+          <div className="mb-12">
+            <p className="sys-label mb-3">// MODULE_02 :: ПОРТФОЛИО</p>
+            <h2 className="font-orb font-black text-3xl md:text-4xl neon-c mb-3">Наши работы</h2>
           </div>
 
-          {/* Hero image */}
-          <div className="mb-8 rounded-2xl overflow-hidden"
-            style={{ border: "1px solid rgba(255,255,255,0.08)", maxHeight: "260px" }}>
-            <img src="https://cdn.poehali.dev/projects/e78463c9-c455-4117-8591-74c076d3ec68/files/014b3606-e001-4751-a47d-cfb1a254256e.jpg"
-              alt="Наши игровые проекты" className="w-full object-cover" style={{ maxHeight: "260px", opacity: 0.75 }} />
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-5">
-            {WORKS.map((w) => (
-              <div key={w.title} className="game-card p-5 flex gap-4">
-                <div className="text-3xl flex-shrink-0 mt-0.5">{w.emoji}</div>
-                <div>
-                  <div className="flex items-center gap-3 mb-1.5">
-                    <h3 className="font-extrabold text-base" style={{ color: "#E8EAF0", fontFamily: "'Nunito', sans-serif" }}>
-                      {w.title}
-                    </h3>
-                    <span className="text-xs px-2 py-0.5 rounded font-mono-code font-semibold"
-                      style={{ background: `${w.color}18`, color: w.color }}>
-                      {w.tech}
-                    </span>
+          <div className="grid md:grid-cols-2 gap-4">
+            {WORKS.map(w => (
+              <div key={w.title} className="hack-card p-5">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-0.5 font-ibm text-xs"
+                    style={{ color: w.color, background: `${w.color}12`, border: `1px solid ${w.color}30`, padding: "2px 8px" }}>
+                    {w.tech}
                   </div>
-                  <p className="text-sm leading-relaxed" style={{ color: "rgba(232,234,240,0.55)" }}>{w.desc}</p>
                 </div>
+                <h3 className="font-orb font-bold mt-2 mb-1 text-sm"
+                  style={{ color: w.color, textShadow: `0 0 8px ${w.color}50` }}>
+                  {w.title}
+                </h3>
+                <p className="text-sm font-ibm" style={{ color: "rgba(0,255,65,0.45)" }}>{w.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* EDUCATION */}
-      <section id="edu" className="py-24 px-6">
+      <hr className="hack-divider mx-6" />
+
+      {/* ── EDUCATION ── */}
+      <section id="edu" className="py-24 px-6 relative z-10">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="section-label mb-3">// 03 — Обучение</p>
-            <h2 className="text-3xl md:text-4xl font-extrabold" style={{ color: "#E8EAF0", fontFamily: "'Nunito', sans-serif" }}>
-              Учим <span style={{ color: "var(--purple)" }}>программировать</span>
-            </h2>
-            <p className="mt-3 text-base max-w-lg mx-auto" style={{ color: "rgba(232,234,240,0.5)" }}>
-              Python и Scratch — обучаем через игры и реальные проекты. Скучных лекций нет.
+          <div className="mb-12">
+            <p className="sys-label mb-3">// MODULE_03 :: ОБУЧЕНИЕ</p>
+            <h2 className="font-orb font-black text-3xl md:text-4xl neon-p mb-3">Учим программировать</h2>
+            <p className="font-ibm text-sm" style={{ color: "rgba(0,255,65,0.45)" }}>
+              Python и Scratch — через игровые задачи и реальные проекты. Скучных лекций нет.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            {EDU_COURSES.map((c) => (
-              <div key={c.title} className="game-card p-7">
-                <div className="text-4xl mb-4">{c.emoji}</div>
-                <div className="flex items-start justify-between mb-2 gap-3 flex-wrap">
-                  <h3 className="text-xl font-extrabold" style={{ color: c.color, fontFamily: "'Nunito', sans-serif" }}>
+          <div className="grid md:grid-cols-2 gap-6">
+            {EDU_COURSES.map(c => (
+              <div key={c.title} className="hack-card p-7">
+                <div className="sys-label mb-3">{c.tag}</div>
+                <div className="flex items-start justify-between mb-3 gap-3 flex-wrap">
+                  <h3 className="font-orb font-black text-lg"
+                    style={{ color: c.color, textShadow: `0 0 12px ${c.color}55` }}>
                     {c.title}
                   </h3>
                   <div className="flex gap-2 flex-wrap">
-                    <span className="text-xs px-2.5 py-1 rounded-md font-bold"
-                      style={{ background: "rgba(255,255,255,0.06)", color: "rgba(232,234,240,0.6)" }}>
+                    <span className="font-ibm text-xs px-2 py-0.5"
+                      style={{ border: "1px solid rgba(0,255,65,0.15)", color: "rgba(0,255,65,0.4)" }}>
                       {c.level}
                     </span>
-                    <span className="text-xs px-2.5 py-1 rounded-md font-bold"
-                      style={{ background: `${c.color}18`, color: c.color }}>
+                    <span className="font-ibm text-xs px-2 py-0.5"
+                      style={{ background: `${c.color}12`, color: c.color, border: `1px solid ${c.color}30` }}>
                       {c.duration}
                     </span>
                   </div>
                 </div>
-                <p className="text-sm leading-relaxed mb-5" style={{ color: "rgba(232,234,240,0.6)" }}>
+                <p className="font-ibm text-sm leading-relaxed mb-5" style={{ color: "rgba(0,255,65,0.5)" }}>
                   {c.desc}
                 </p>
                 <ul className="space-y-2 mb-6">
-                  {c.highlights.map(h => (
-                    <li key={h} className="flex items-center gap-2 text-sm font-semibold" style={{ color: "rgba(232,234,240,0.75)" }}>
-                      <span style={{ color: c.color }}>✓</span> {h}
+                  {c.list.map(h => (
+                    <li key={h} className="font-ibm text-sm flex items-center gap-2"
+                      style={{ color: "rgba(0,255,65,0.65)" }}>
+                      <span style={{ color: c.color }}>▸</span> {h}
                     </li>
                   ))}
                 </ul>
-                <button className="btn-primary w-full py-3 text-sm" onClick={() => goto("contacts")}>
-                  Записаться →
+                <button className="btn-hack w-full py-3 rounded-none" onClick={() => go("contacts")}>
+                  [ ЗАПИСАТЬСЯ ]
                 </button>
               </div>
             ))}
@@ -327,80 +367,112 @@ export default function Index() {
         </div>
       </section>
 
-      {/* ABOUT STRIP */}
-      <section className="py-16 px-6" style={{ background: "rgba(255,210,63,0.04)", borderTop: "1px solid rgba(255,210,63,0.1)", borderBottom: "1px solid rgba(255,210,63,0.1)" }}>
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
-          <div className="text-6xl flex-shrink-0 float-1">👾</div>
-          <div>
-            <h3 className="text-2xl font-extrabold mb-2" style={{ color: "#E8EAF0", fontFamily: "'Nunito', sans-serif" }}>
-              О нас
-            </h3>
-            <p className="text-base leading-relaxed" style={{ color: "rgba(232,234,240,0.6)" }}>
-              GameCode Studio работает с <strong style={{ color: "var(--yellow)" }}>2024 года</strong> — 
-              уже 2 года мы создаём игры и обучаем программированию. 
-              Специализируемся на <strong style={{ color: "var(--yellow)" }}>Python</strong> и{" "}
-              <strong style={{ color: "var(--cyan)" }}>Scratch</strong>. 
-              Наша цель — сделать программирование понятным и увлекательным для каждого.
-            </p>
-          </div>
-        </div>
-      </section>
+      <hr className="hack-divider mx-6" />
 
-      {/* CONTACTS */}
-      <section id="contacts" className="py-24 px-6">
-        <div className="max-w-xl mx-auto text-center">
-          <p className="section-label mb-3">// 04 — Контакты</p>
-          <h2 className="text-3xl md:text-4xl font-extrabold mb-3" style={{ color: "#E8EAF0", fontFamily: "'Nunito', sans-serif" }}>
-            Напишите нам <span style={{ color: "var(--yellow)" }}>🎮</span>
-          </h2>
-          <p className="text-base mb-10" style={{ color: "rgba(232,234,240,0.5)" }}>
-            Хотите заказать игру или записаться на обучение? Оставьте сообщение — ответим в течение дня.
+      {/* ── ABOUT ── */}
+      <section className="py-16 px-6 relative z-10">
+        <div className="max-w-4xl mx-auto terminal-box p-8 pt-10">
+          <p className="sys-label mb-4">// ABOUT :: GAMECODE_STUDIO</p>
+          <p className="font-ibm text-sm leading-relaxed" style={{ color: "rgba(0,255,65,0.65)", lineHeight: 1.9 }}>
+            <span style={{ color: "var(--g)" }}>{">"}</span> GAMECODE_STUDIO :: запущена в{" "}
+            <span className="neon-g">2024</span>.{" "}
+            Стаж <span className="neon-g">2 года</span>. Специализация:{" "}
+            <span style={{ color: "var(--g)" }}>Python</span> +{" "}
+            <span style={{ color: "var(--c)" }}>Scratch</span>.
+            <br />
+            <span style={{ color: "var(--g)" }}>{">"}</span> Разрабатываем игры и обучаем детей и взрослых
+            программированию через реальные проекты.
+            <br />
+            <span style={{ color: "var(--g)" }}>{">"}</span> Миссия: сделать код понятным,
+            а игры — твоими.{" "}
+            <span className="blink" style={{ color: "var(--g)" }}>█</span>
           </p>
-
-          <div className="game-card p-8 text-left">
-            <div className="grid grid-cols-1 gap-4 mb-4">
-              <div>
-                <label className="block text-xs font-bold mb-1.5 font-mono-code" style={{ color: "rgba(232,234,240,0.45)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Ваше имя</label>
-                <input className="game-input w-full px-4 py-3 text-sm" placeholder="Иван Иванов" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold mb-1.5 font-mono-code" style={{ color: "rgba(232,234,240,0.45)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Телефон или email</label>
-                <input className="game-input w-full px-4 py-3 text-sm" placeholder="+7 999 000-00-00" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold mb-1.5 font-mono-code" style={{ color: "rgba(232,234,240,0.45)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Что вас интересует?</label>
-                <textarea className="game-input w-full px-4 py-3 text-sm resize-none" rows={4}
-                  placeholder="Хочу заказать игру на Python / записаться на курс Scratch..." />
-              </div>
-            </div>
-            <button className="btn-primary w-full py-4 text-base" onClick={() => alert("Скоро настроим отправку!")}>
-              Отправить сообщение 🚀
-            </button>
-          </div>
-
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6">
-            {[
-              { icon: "Mail", label: "hello@gamecode.ru", color: "var(--yellow)" },
-              { icon: "MessageCircle", label: "Telegram", color: "var(--cyan)" },
-            ].map(c => (
-              <div key={c.label} className="flex items-center gap-2">
-                <Icon name={c.icon} size={15} style={{ color: c.color }} />
-                <span className="text-sm font-semibold" style={{ fontFamily: "'IBM Plex Mono', monospace", color: c.color }}>
-                  {c.label}
-                </span>
-              </div>
+          <div className="mt-6 flex flex-wrap gap-4">
+            {["Python", "Scratch", "Pygame", "Game Dev", "Обучение", "С 2024"].map(t => (
+              <span key={t} className="font-ibm text-xs px-3 py-1"
+                style={{ border: "1px solid rgba(0,255,65,0.2)", color: "rgba(0,255,65,0.55)" }}>
+                {t}
+              </span>
             ))}
           </div>
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="py-7 px-6 text-center" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-        <p className="text-xs font-semibold font-mono-code" style={{ color: "rgba(232,234,240,0.25)" }}>
-          © 2024–2026 GameCode Studio · Python · Scratch · Игры · Обучение
+      {/* ── CONTACTS ── */}
+      <section id="contacts" className="py-24 px-6 relative z-10">
+        <div className="max-w-xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="sys-label mb-3">// MODULE_04 :: СВЯЗЬ</p>
+            <h2 className="font-orb font-black text-3xl md:text-4xl neon-g mb-3">
+              Взломаем задачу вместе
+            </h2>
+            <p className="font-ibm text-sm" style={{ color: "rgba(0,255,65,0.45)" }}>
+              Хочешь заказать игру или записаться на курс? Пиши — ответим в течение дня.
+            </p>
+          </div>
+
+          {/* Contact cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+            <a href="mailto:zuravkovplaton@gmail.com"
+              className="hack-card p-5 flex items-center gap-3 no-underline group cursor-pointer">
+              <div className="w-9 h-9 flex items-center justify-center flex-shrink-0"
+                style={{ border: "1px solid rgba(0,255,65,0.3)", background: "rgba(0,255,65,0.05)" }}>
+                <Icon name="Mail" size={16} style={{ color: "var(--g)" }} />
+              </div>
+              <div>
+                <div className="sys-label mb-0.5">EMAIL</div>
+                <div className="font-ibm text-xs neon-g break-all">zuravkovplaton@gmail.com</div>
+              </div>
+            </a>
+            <a href="tel:+79112540094"
+              className="hack-card p-5 flex items-center gap-3 no-underline group cursor-pointer">
+              <div className="w-9 h-9 flex items-center justify-center flex-shrink-0"
+                style={{ border: "1px solid rgba(0,229,255,0.3)", background: "rgba(0,229,255,0.05)" }}>
+                <Icon name="Phone" size={16} style={{ color: "var(--c)" }} />
+              </div>
+              <div>
+                <div className="sys-label mb-0.5">ТЕЛЕФОН</div>
+                <div className="font-ibm text-xs neon-c">+7 911 254 00 94</div>
+              </div>
+            </a>
+          </div>
+
+          {/* Form */}
+          <div className="hack-card p-7">
+            <p className="sys-label mb-5">// ОТПРАВИТЬ_СООБЩЕНИЕ</p>
+            <div className="flex flex-col gap-4 mb-5">
+              <div>
+                <label className="sys-label block mb-2">ИМЯ</label>
+                <input className="hack-input w-full px-4 py-3 text-sm" placeholder="Иван Иванов" />
+              </div>
+              <div>
+                <label className="sys-label block mb-2">ТЕЛЕФОН / EMAIL</label>
+                <input className="hack-input w-full px-4 py-3 text-sm" placeholder="+7 911 254 00 94" />
+              </div>
+              <div>
+                <label className="sys-label block mb-2">СООБЩЕНИЕ</label>
+                <textarea className="hack-input w-full px-4 py-3 text-sm resize-none" rows={4}
+                  placeholder="Хочу заказать игру / записаться на Python / другой вопрос..." />
+              </div>
+            </div>
+            <button className="btn-hack w-full py-4 rounded-none font-orb"
+              onClick={() => alert("Форма будет настроена — свяжитесь напрямую: zuravkovplaton@gmail.com")}>
+              [ ОТПРАВИТЬ ЗАПРОС → ]
+            </button>
+            <p className="font-ibm text-xs text-center mt-4" style={{ color: "rgba(0,255,65,0.25)" }}>
+              или напишите напрямую: zuravkovplaton@gmail.com
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <footer className="py-7 px-6 text-center relative z-10"
+        style={{ borderTop: "1px solid rgba(0,255,65,0.07)" }}>
+        <p className="font-ibm text-xs" style={{ color: "rgba(0,255,65,0.2)" }}>
+          © 2024–2026 GAMECODE_STUDIO :: PYTHON :: SCRATCH :: GAMES :: ALL_SYSTEMS_ONLINE
         </p>
       </footer>
-
     </div>
   );
 }
