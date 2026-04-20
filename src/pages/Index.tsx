@@ -316,6 +316,76 @@ export default function Index() {
 
       <hr className="hack-divider mx-6" />
 
+      {/* ── SCRATCH STUDIO ── */}
+      <section className="py-16 px-6 relative z-10">
+        <div className="max-w-5xl mx-auto">
+          <div className="mb-8">
+            <p className="sys-label mb-3">// MODULE_02b :: SCRATCH_STUDIO</p>
+            <h2 className="font-orb font-black text-2xl md:text-3xl neon-c mb-3">Наша студия на Scratch</h2>
+          </div>
+
+          <a
+            href="https://scratch.mit.edu/studios/51408504"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hack-card block p-0 overflow-hidden no-underline"
+            style={{ borderColor: "rgba(0,229,255,0.25)" }}
+          >
+            <div className="flex flex-col md:flex-row">
+              {/* Scratch logo side */}
+              <div className="flex-shrink-0 flex items-center justify-center md:w-48 py-8 px-6"
+                style={{ background: "rgba(0,229,255,0.04)", borderRight: "1px solid rgba(0,229,255,0.12)" }}>
+                <div className="text-center">
+                  <div className="text-5xl mb-2">🐱</div>
+                  <div className="font-orb font-black text-xs tracking-widest" style={{ color: "var(--c)" }}>SCRATCH</div>
+                </div>
+              </div>
+
+              {/* Info */}
+              <div className="flex-1 p-6 md:p-8">
+                <div className="sys-label mb-2">СТУДИЯ :: VERIFIED</div>
+                <h3 className="font-orb font-black text-xl mb-2" style={{ color: "var(--c)", textShadow: "0 0 12px rgba(0,229,255,0.4)" }}>
+                  Программисты 369
+                </h3>
+                <p className="font-ibm text-sm mb-5" style={{ color: "rgba(0,255,65,0.5)" }}>
+                  Официальная студия GameCode на платформе Scratch. Здесь собраны все наши проекты — можешь поиграть прямо в браузере.
+                </p>
+
+                {/* Stats row */}
+                <div className="flex flex-wrap gap-4 mb-6">
+                  {[
+                    { val: "22", label: "проекта", color: "var(--g)" },
+                    { val: "5",  label: "участников", color: "var(--c)" },
+                    { val: "5",  label: "подписчиков", color: "var(--p)" },
+                  ].map(s => (
+                    <div key={s.label} className="text-center px-4 py-2"
+                      style={{ border: `1px solid ${s.color}25`, background: `${s.color}08` }}>
+                      <div className="font-orb font-black text-lg" style={{ color: s.color }}>{s.val}</div>
+                      <div className="sys-label text-xs" style={{ opacity: 0.6 }}>{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="inline-flex items-center gap-2 font-ibm text-sm"
+                  style={{ color: "var(--c)", textShadow: "0 0 8px rgba(0,229,255,0.4)" }}>
+                  <Icon name="ExternalLink" size={14} />
+                  scratch.mit.edu/studios/51408504
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom bar */}
+            <div className="px-6 py-2.5 flex items-center justify-between"
+              style={{ background: "rgba(0,229,255,0.04)", borderTop: "1px solid rgba(0,229,255,0.1)" }}>
+              <span className="sys-label text-xs">▸ НАЖМИ ЧТОБЫ ОТКРЫТЬ СТУДИЮ</span>
+              <Icon name="ArrowRight" size={14} style={{ color: "var(--c)" }} />
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <hr className="hack-divider mx-6" />
+
       {/* ── EDUCATION ── */}
       <section id="edu" className="py-24 px-6 relative z-10">
         <div className="max-w-5xl mx-auto">
